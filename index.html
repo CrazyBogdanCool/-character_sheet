@@ -26,6 +26,7 @@
             --panel-bg: #111827;
             --input-bg: #374151;
         }
+        
         *, *::before, *::after {
             box-sizing: border-box;
         }
@@ -45,6 +46,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
+        
         .header-actions {
             display: flex;
             gap: 10px;
@@ -72,6 +74,7 @@
         button:hover {
             opacity: 0.85;
         }
+        
         .theme-controls {
             display: flex;
             align-items: center;
@@ -103,6 +106,7 @@
             border: none;
             border-radius: 4px;
         }
+        
         .grid-header {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -123,6 +127,7 @@
         .grid-magic {
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         }
+        
         .section {
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -161,6 +166,7 @@
             align-items: center;
             gap: 5px;
         }
+        
         input[type="text"], input[type="number"], select {
             padding: 0 12px;
             height: 42px;
@@ -197,6 +203,7 @@
         input[readonly]:focus {
             border-color: var(--border-color);
         }
+        
         textarea {
             width: 100%;
             padding: 12px;
@@ -216,6 +223,7 @@
             outline: none;
             border-color: var(--primary);
         }
+        
         .stat-box {
             display: flex;
             flex-direction: column;
@@ -266,6 +274,7 @@
             border-bottom: 1px dashed var(--border-color);
             background: var(--input-bg);
         }
+        
         .skills-dynamic-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -312,6 +321,7 @@
             font-size: 1.1em;
             border-radius: 0;
         }
+        
         input.skill-val:not([readonly]) {
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
@@ -351,6 +361,7 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+        
         .ds-row {
             display: flex;
             align-items: center;
@@ -397,6 +408,7 @@
         .dynamic-row.collapsed .dyn-header {
             border-bottom: none;
         }
+        
         .collapse-btn {
             background: transparent;
             border: none;
@@ -439,6 +451,7 @@
         .dynamic-row.collapsed .dyn-body {
             display: none;
         }
+        
         .dyn-cb-label {
             display: flex;
             flex-direction: row;
@@ -482,6 +495,7 @@
             background: var(--panel-bg);
             border-color: transparent;
         }
+        
         .add-btn {
             background-color: var(--success);
             padding: 0 15px;
@@ -530,6 +544,7 @@
             margin: 0;
             accent-color: var(--primary);
         }
+        
         .attunement-item {
             display: flex;
             align-items: center;
@@ -598,6 +613,7 @@
         .tab-content.active {
             display: flex;
         }
+        
         .top-checkbox-wrapper {
             display: flex;
             align-items: center;
@@ -648,6 +664,7 @@
             border-bottom: 1px solid var(--primary) !important; 
             border-radius: 0; 
         }
+        
         .counter-controls {
             display: flex;
             align-items: center;
@@ -927,6 +944,7 @@
 
         <div class="section">
             <div class="section-title">Ефекти та Стан</div>
+            <!-- Flex-start alignment applied here for correct wrapping -->
             <div class="grid-header" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 0; align-items: flex-start;">
                 <div class="input-group">
                     <label style="color: var(--success);">Бафи / Позитивні ефекти</label>
@@ -1031,6 +1049,7 @@
     <div id="tab-bio" class="tab-content">
         <div class="section">
             <div class="section-title">Особистість</div>
+            <!-- Flex-start alignment applied here to keep fields at the top if text lengths differ -->
             <div class="grid-header" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 20px; align-items: flex-start;">
                 <div class="input-group"><label>Риси характеру</label><textarea id="bioTraits" style="min-height: 80px;"></textarea></div>
                 <div class="input-group"><label>Ідеали</label><textarea id="bioIdeals" style="min-height: 80px;"></textarea></div>
@@ -1432,7 +1451,7 @@
         const charData = {};
         
         document.querySelectorAll('input, textarea, select').forEach(el => {
-            if (el.id && el.id !== 'themeColor' && el.id !== 'fileInput') {
+            if (el.id && el.id !== 'fileInput') {
                 if (el.type === 'checkbox') {
                     charData[el.id] = el.checked;
                 } else {
@@ -1440,6 +1459,9 @@
                 }
             }
         });
+
+        // Save dark mode state
+        charData['isDarkMode'] = document.body.classList.contains('dark-mode');
 
         // Save collapsed states
         document.querySelectorAll('.dynamic-row').forEach(row => {
@@ -1491,6 +1513,7 @@
             try {
                 const charData = JSON.parse(e.target.result);
                 
+                // Clear existing dynamic elements to prevent duplication
                 document.querySelectorAll('.dynamic-row, .counter-row').forEach(el => el.remove());
 
                 for (const key in charData) {
@@ -1514,13 +1537,27 @@
                 
                 for (const key in charData) {
                     const el = document.getElementById(key);
-                    if (el && el.id !== 'themeColor' && el.id !== 'fileInput') {
+                    if (el && el.id !== 'fileInput') {
                         if (el.type === 'checkbox') {
                             el.checked = charData[key];
                         } else {
                             el.value = charData[key];
                         }
                     }
+                }
+
+                // Restore theme color
+                if (charData['themeColor']) {
+                    document.documentElement.style.setProperty('--primary', charData['themeColor']);
+                }
+
+                // Restore dark mode state
+                if (charData['isDarkMode']) {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('darkModeBtn').innerText = '☀️ Світла тема';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.getElementById('darkModeBtn').innerText = '🌙 Темна тема';
                 }
 
                 // Restore collapsed states
